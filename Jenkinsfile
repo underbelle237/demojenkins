@@ -19,41 +19,25 @@ pipeline {
             }
         }
 
-
         stage('Checkout') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/underbelle237/demojenkins']]])
             }
         }
 
-        stage ('install checkov') {
-        stage ('Install checkov') {
+        stage('Install checkov') {
             steps {
                 sh 'pip3 install checkov'
                 sh '/var/lib/jenkins/.local/bin/checkov --version'
-
-
-                #catchError(buildResult: 'SUCCESS') {
-                    #sh 'pip3 install checkov'
-                    #sh '/var/lib/jenkins/.local/bin/checkov --version'
-                }
             }
         }
 
         stage('Checkov') {
             steps {
-                sh '/var/lib/jenkins/.local/bin/checkov  --version'
+                sh '/var/lib/jenkins/.local/bin/checkov --version'
                 sh 'echo ${WORKSPACE}'
-                sh '/var/lib/jenkins/.local/bin/checkov -d .  -o junitxml  --output-file-path console'
+                sh '/var/lib/jenkins/.local/bin/checkov -d . -o junitxml --output-file-path console'
                 junit '${WORKSPACE}/console/*.xml'
-
-                #for checkov to be successful despit security vulnerabilities
-                #catchError(buildResult: 'SUCCESS') {
-                    #sh '/var/lib/jenkins/.local/bin/checkov  --version'
-                    #sh 'echo ${WORKSPACE}'
-                    #sh '/var/lib/jenkins/.local/bin/checkov -d .  -o junitxml  --output-file-path console'
-                    #junit '${WORKSPACE}/console/*.xml'
-                }
             }
         }
 
@@ -62,11 +46,13 @@ pipeline {
                 sh 'terraform init'
             }
         }
+
         stage('Terraform Plan') {
             steps {
                 sh 'terraform plan -out=tfplan'
             }
         }
+
         stage('Terraform Apply or Destroy') {
             steps {
                 echo "Apply or Destroy is --> ${params.action}"
