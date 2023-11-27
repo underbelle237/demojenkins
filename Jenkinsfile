@@ -1,17 +1,6 @@
 pipeline {
     agent any
 
-     stages {
-        stage('Install AWS CLI') {
-            steps {
-                script {
-                    sh 'curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"'
-                    sh 'unzip awscliv2.zip'
-                    sh './aws/install'
-                }
-            }
-        }
-
     environment {
         AWS_ACCESS_KEY_ID     = sh(script: 'aws ssm get-parameter --name /MyApp/AWS/AccessKey --query "Parameter.Value" --output text', returnStdout: true).trim()
         AWS_SECRET_ACCESS_KEY = sh(script: 'aws ssm get-parameter --name /MyApp/AWS/SecretKey --query "Parameter.Value" --output text', returnStdout: true).trim()
@@ -22,6 +11,16 @@ pipeline {
     }
 
     stages {
+        stage('Install AWS CLI') {
+            steps {
+                script {
+                    sh 'curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"'
+                    sh 'unzip awscliv2.zip'
+                    sh './aws/install'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/underbelle237/demojenkins']]])
