@@ -13,15 +13,23 @@ pipeline {
     }
 
     stages {
-        stage('Install AWS CLI and Checkov') {
+        stage('Install AWS CLI') {
             steps {
                 script {
                     sh 'sudo apt-get update'
                     sh 'sudo apt-get install -y awscli'
-                    sh 'pip install checkov'
                 }
             }
         }
+        stage('Install pip and checkov') {
+              steps {
+                 script {
+                        sh 'sudo apt-get update'
+                        sh 'sudo apt-get install -y python3-pip'
+                        sh 'pip3 install checkov'
+                 }
+              }
+             }
 
         stage('Checkout') {
             steps {
