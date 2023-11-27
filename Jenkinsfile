@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        AWS_INSTALL_DIR = '/usr/local/bin/'
+        AWS_INSTALL_DIR = '/home/ubuntu/aws'
         AWS_ACCESS_KEY_ID     = sh(script: "aws configure set region ${AWS_REGION} && aws ssm get-parameter --region ${AWS_REGION} --name /MyApp/AWS/AccessKey --with-decryption --query 'Parameter.Value' --output text", returnStdout: true).trim()
         AWS_SECRET_ACCESS_KEY = sh(script: "aws configure set region ${AWS_REGION} && aws ssm get-parameter --region ${AWS_REGION} --name /MyApp/AWS/SecretKey --with-decryption --query 'Parameter.Value' --output text", returnStdout: true).trim()
     }
