@@ -13,11 +13,12 @@ pipeline {
     }
 
     stages {
-        stage('Install AWS CLI') {
+        stage('Install AWS CLI and Checkov') {
             steps {
                 script {
                     sh 'sudo apt-get update'
                     sh 'sudo apt-get install -y awscli'
+                    sh 'pip install checkov'
                 }
             }
         }
@@ -25,6 +26,14 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/underbelle237/demojenkins']]])
+            }
+        }
+
+        stage('Checkov Scan') {
+            steps {
+                script {
+                    sh 'checkov -d .'
+                }
             }
         }
 
