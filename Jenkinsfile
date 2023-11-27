@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-        environment {
-        AWS_REGION = 'us-east-1'
-        }
-
     parameters {
         choice(name: 'action', choices: ['apply', 'destroy'], description: 'Select Apply or Destroy')
     }
