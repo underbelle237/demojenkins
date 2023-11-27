@@ -18,28 +18,45 @@ pipeline {
                 }
             }
         }
-        stage('Install pip and checkov') {
-              steps {
-                 script {
-                        sh 'sudo apt-get update'
-                        sh 'sudo apt-get install -y python3-pip'
-                        sh 'pip3 install checkov'
-                 }
-              }
-             }
+
+
         stage('Checkout') {
             steps {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/underbelle237/demojenkins']]])
             }
         }
-        stage('Checkov Scan') {
+
+        stage ('install checkov') {
+        stage ('Install checkov') {
             steps {
-                script {
-                    sh 'checkov -d .'
-                    sh 'checkov -d . || true'
+                sh 'pip3 install checkov'
+                sh '/var/lib/jenkins/.local/bin/checkov --version'
+
+
+                #catchError(buildResult: 'SUCCESS') {
+                    #sh 'pip3 install checkov'
+                    #sh '/var/lib/jenkins/.local/bin/checkov --version'
                 }
             }
         }
+
+        stage('Checkov') {
+            steps {
+                sh '/var/lib/jenkins/.local/bin/checkov  --version'
+                sh 'echo ${WORKSPACE}'
+                sh '/var/lib/jenkins/.local/bin/checkov -d .  -o junitxml  --output-file-path console'
+                junit '${WORKSPACE}/console/*.xml'
+
+                #for checkov to be successful despit security vulnerabilities
+                #catchError(buildResult: 'SUCCESS') {
+                    #sh '/var/lib/jenkins/.local/bin/checkov  --version'
+                    #sh 'echo ${WORKSPACE}'
+                    #sh '/var/lib/jenkins/.local/bin/checkov -d .  -o junitxml  --output-file-path console'
+                    #junit '${WORKSPACE}/console/*.xml'
+                }
+            }
+        }
+
         stage('Terraform Init') {
             steps {
                 sh 'terraform init'
