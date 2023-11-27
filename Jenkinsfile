@@ -21,15 +21,7 @@ pipeline {
                 }
             }
         }
-        stage('Install pip and checkov') {
-              steps {
-                 script {
-                        sh 'sudo apt-get update'
-                        sh 'sudo apt-get install -y python3-pip'
-                        sh 'pip3 install checkov'
-                 }
-              }
-             }
+        
 
         stage('Checkout') {
             steps {
@@ -37,11 +29,18 @@ pipeline {
             }
         }
 
-        stage('Checkov Scan') {
+        stage ('install checkov') {
             steps {
-                script {
-                    sh 'checkov -d . || true'
-                }
+                sh 'pip3 install checkov'
+                sh '/var/lib/jenkins/.local/bin/checkov --version'
+            }
+        }
+        stage('Checkov') {
+            steps {
+                sh '/var/lib/jenkins/.local/bin/checkov  --version'
+                sh 'echo ${WORKSPACE}'
+                sh '/var/lib/jenkins/.local/bin/checkov -d .  -o junitxml  --output-file-path console'
+                junit '${WORKSPACE}/console/*.xml'
             }
         }
 
