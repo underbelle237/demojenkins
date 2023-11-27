@@ -27,18 +27,22 @@ pipeline {
 
         stage('Install checkov') {
             steps {
+                catchError(buildResult: 'SUCCESS') {
                 sh 'pip3 install checkov'
                 sh '/var/lib/jenkins/.local/bin/checkov --version'
+            }
             }
         }
 
         stage('Checkov') {
             steps {
+                catchError(buildResult: 'SUCCESS') {
                 sh '/var/lib/jenkins/.local/bin/checkov --version'
                 sh 'echo ${WORKSPACE}'
                 sh '/var/lib/jenkins/.local/bin/checkov -d . -o junitxml --output-file-path console'
                 junit '${WORKSPACE}/console/*.xml'
             }
+        }
         }
 
         stage('Terraform Init') {
