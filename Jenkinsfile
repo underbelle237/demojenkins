@@ -3,8 +3,9 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        AWS_ACCESS_KEY_ID     = sh(script: "aws configure set region ${AWS_REGION} && aws ssm get-parameter --name /MyApp/AWS/AccessKey --query 'Parameter.Value' --output text", returnStdout: true).trim()
-        AWS_SECRET_ACCESS_KEY = sh(script: "aws configure set region ${AWS_REGION} && aws ssm get-parameter --name /MyApp/AWS/SecretKey --query 'Parameter.Value' --output text", returnStdout: true).trim()
+        AWS_INSTALL_DIR = '/usr/local/bin/'
+        AWS_ACCESS_KEY_ID     = sh(script: "aws configure set region ${AWS_REGION} && aws ssm get-parameter --region ${AWS_REGION} --name /MyApp/AWS/AccessKey --with-decryption --query 'Parameter.Value' --output text", returnStdout: true).trim()
+        AWS_SECRET_ACCESS_KEY = sh(script: "aws configure set region ${AWS_REGION} && aws ssm get-parameter --region ${AWS_REGION} --name /MyApp/AWS/SecretKey --with-decryption --query 'Parameter.Value' --output text", returnStdout: true).trim()
     }
 
     parameters {
@@ -15,9 +16,9 @@ pipeline {
         stage('Install AWS CLI') {
             steps {
                 script {
-                    sh 'curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"'
+                    sh "curl 'https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip' -o 'awscliv2.zip'"
                     sh 'unzip awscliv2.zip'
-                    sh './aws/install'
+                    sh "./aws/install --install-dir=${AWS_INSTALL_DIR}"
                 }
             }
         }
